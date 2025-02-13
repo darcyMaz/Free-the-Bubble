@@ -185,3 +185,8 @@ autoplay = "idle"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_fmt3w")
+
+[node name="SprintAttackTimer" type="Timer" parent="."]
+wait_time = 0.5
+
+[connection signal="timeout" from="SprintAttackTimer" to="." method="_on_sprint_attack_timer_timeout"]

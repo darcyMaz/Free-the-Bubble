@@ -2,27 +2,30 @@ extends CharacterBody2D
 
 
 const RUN_SPEED = 120.0
-const RUN_DECELERATION = 10.0
+const RUN_DECELERATION = 12.0
 const JUMP_VELOCITY = -280.0
 
 # Sprinting mechanic variables: rn, these are numbers that feel right.
 # Idea with this mechanic is to have a dynamic/fatigue system for the sprinting.
-const SPRINT_SPEED = 200.0
+const SPRINT_SPEED = 260.0
 const COOLDOWN_SPEED = 90.0
 
 const SPRINT_ACCELERATION = 12.0
 const SPRINT_DECELERATION = 12.0
 const RETURN_ACCELERATION = 2.0
 
-const SPRINT_DURATION = 1.0
-const COOLDOWN_DURATION = 1.5
+@onready var sprint_attack_timer: Timer = $SprintAttackTimer
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 # Bool that can block inputs for the player.
-# True on when player dies.
 var input_block_bool = false
+# Knows if we have died.
+var is_game_over = false
+# Lets process know that the sprint attack is active.
+var sprint_attack_active = false
+var sprint_attack_direction = 1
 
 func _physics_process(delta: float) -> void:
 
@@ -33,7 +36,6 @@ func _physics_process(delta: float) -> void:
 	# Get the input direction and handle the movement/deceleration.
 	var direction = Input.get_axis("left", "right")
 
-	# If false, then the player has not died.
 	if input_block_bool == false:
 		
 		# Flip the sprite depending on direction.
@@ -43,36 +45,46 @@ func _physics_process(delta: float) -> void:
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			velocity.y = JUMP_VELOCITY
 
-		
-			
-
-		
 		# Handle animation of player.
 		handle_animation(direction)
 		
-		# I need to change this so it refers to current speed not set speed.
-		# This will keep the speed that same thing.
+		# If we are moving:
 		if direction:
-			# Begins sprint
-			if Input.is_action_pressed("sprint") and is_on_floor():
-				handle_sprint(direction)
-			# Ends sprint
-			elif Input.is_action_just_released("sprint"):
-				handle_slowdown(direction)
+			
+			# Begin sprint attack
+			if Input.is_action_just_pressed("sprint") and is_on_floor():
+				sprint_attack_active = true
+				block_inputs()
+				sprint_attack_direction = direction
+				sprint_attack_timer.start()
 			# No sprint
 			else:
-				velocity.x = direction * RUN_SPEED
+				#velocity.x = direction * RUN_SPEED
+				velocity.x = move_toward(velocity.x, RUN_SPEED*direction, RUN_DECELERATION)
 				print("No sprint: ", velocity.x)
+		# If we are not moving, decelerate to 0 speed.
 		else:
-			velocity.x = move_toward(velocity.x, 0, SPRINT_DECELERATION)
+			velocity.x = move_toward(velocity.x, 0, RUN_DECELERATION)
+	# Else, the input is blocked for one of many reasons.
 	else:
-		if position.y > 125:
-			velocity.x = 0
+		if is_game_over:
+			if position.y > 125:
+				velocity.x = 0
+		elif sprint_attack_active:
+			handle_sprint_attack()
 
 	move_and_slide()
 	
 func block_inputs():
 	input_block_bool = true
+	
+func unblock_inputs():
+	input_block_bool = false
+
+func handle_death():
+	block_inputs()
+	is_game_over = true
+	sprint_attack_active = false
 
 # Function that handles the flipping of the sprite based on direction.
 func sprite_flip(direction):
@@ -90,11 +102,16 @@ func handle_animation(direction):
 	else:
 		animated_sprite.play("jumping")
 
-func handle_sprint(direction):
-	velocity.x = move_toward(velocity.x, SPRINT_SPEED * direction, SPRINT_ACCELERATION * direction)
+func handle_sprint_attack():
+	if sprint_attack_active:
+		velocity.x = move_toward(velocity.x, SPRINT_SPEED * sprint_attack_direction, 
+			SPRINT_ACCELERATION)
+	else:
+		unblock_inputs()
 	print("Handle Sprint: ", velocity.x)
-	
-func handle_slowdown(direction):
-	velocity.x = move_toward(velocity.x, COOLDOWN_SPEED * direction, SPRINT_DECELERATION * direction)
-	velocity.x = move_toward(velocity.x, RUN_SPEED * direction, RETURN_ACCELERATION * direction)
-	print("Release sprint")
+
+func _on_sprint_attack_timer_timeout() -> void:
+	sprint_attack_active = false
+	unblock_inputs()
+	sprint_attack_timer.stop()
+	print("Timer done!")

@@ -23,5 +23,5 @@ func _on_body_entered(body: Node2D) -> void:
 	# Remove the collider so it looks cool I guess.
 	body.get_node("CollisionShape2D").queue_free()
 	
-	body.block_inputs()
+	body.handle_death()
 	timer.start()
