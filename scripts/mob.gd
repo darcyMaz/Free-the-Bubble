@@ -1,5 +1,10 @@
 extends Node2D
 
+# PROBLEM IS:
+#	killzone script is below the mob and mob2 objects.
+#	so they'll never be at the same level
+#	unless i make the lowerbound its own object with a killzone as an extension
+
 const SPEED = 60
 const GRAVITY = 120
 var direction_x = -1

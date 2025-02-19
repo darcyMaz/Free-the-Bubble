@@ -2,26 +2,23 @@ extends Area2D
 
 @onready var timer: Timer = $Timer
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
+# Think about whether to call game manager at all here.
+@onready var game_manager: Node = $"../../../GameManager"
+# Makes sure the timer is not reset over and over if a killzone is re-entered faster than the timer can end.
+# This can happen if one mob walks over the dead player over and over or when many mobs are walking over the dead player.
+var one_timer = false
 
 func _on_timer_timeout() -> void:
-	get_tree().reload_current_scene()
-	Engine.time_scale = 1.0
-	# Func that toggles bool that unblocks input
+	one_timer = false
+	game_manager.reset_scene()
 
 func _on_body_entered(body: Node2D) -> void:
-	Engine.time_scale = 0.5
-	
-	# Body refers to the player in this case.
-	# Remove the collider so it looks cool I guess.
-	body.get_node("CollisionShape2D").queue_free()
-	
-	body.handle_death()
-	timer.start()
+	if !one_timer:
+		Engine.time_scale = 0.5
+
+		# Make this run only when body is the player.
+		# Or make it so all moveable bodies have handle_death()
+		body.handle_death()
+		timer.start()
+		
+		one_timer = true

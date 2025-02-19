@@ -6,4 +6,7 @@ var score = 0
 func add_point():
 	score += 1
 	score_label.text = "You collected " + str(score) + " coins."
-	
+
+func reset_scene():
+	get_tree().reload_current_scene()
+	Engine.time_scale = 1.0
