@@ -9,17 +9,21 @@ const JUMP_VELOCITY = -280.0
 # Sprinting mechanic variables.
 const SPRINT_SPEED = 340.0
 const SPRINT_ACCELERATION = 24.0
-var sprint_attack_active = false
 var sprint_attack_direction = 0
 
 @onready var lower_bound_killzone: Area2D = $"../Killzones/LowWorldBound/Killzone"
 @onready var game_manager: Node = %GameManager
 @onready var sprint_attack_timer: Timer = $SprintAttackTimer
+@onready var sword_swipe_timer: Timer = $SwordSwipeTimer
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
-# Bool that can block inputs for the player.
+
+# Bools that indicate when certain conditions are active.
+var sword_attack = false
 var input_block_bool = false
 var is_game_over = false
+var sprint_attack_active = false
+
 
 
 # Called when the node enters the scene tree for the first time.
@@ -47,12 +51,26 @@ func _physics_process(delta: float) -> void:
 		# Handle jump.
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			velocity.y = JUMP_VELOCITY
-
+			
+		# if pressed, sword_swipe=true, start sword swipe timer, seperate if sword_swipe true play
+		#	on timer timeout sword_swipe=false.
+		if Input.is_action_just_pressed("sword") and (not sword_attack):
+			sword_attack = true
+			sword_swipe_timer.start()
+			
+		if sword_attack:
+			animated_sprite.play("sword_swipe")
+			print("sword attack true")
 		# Handle animation of player.
-		handle_normal_animation(direction)
+		else:
+			handle_normal_animation(direction)
 		
 		# If we start the sprint attack.
 		if Input.is_action_just_pressed("sprint"):
+			# Override the sword attack
+			sword_swipe_timer.stop()
+			sword_attack = false
+			# Play the sprint attack
 			sprint_attack_active = true
 			block_inputs()
 			sprint_attack_direction = direction
@@ -69,9 +87,17 @@ func _physics_process(delta: float) -> void:
 	# Else, the input is blocked for one of many reasons.
 	else:
 		if is_game_over:
-			# force timeout of sprint attack
-			# that might be it lol
-			if position.y > 125:  # put this in a variable
+			
+			# Forces the end of the sprint attack.
+			sprint_attack_active = false
+			sprint_attack_timer.stop()
+			# Forces the end of the sword swipe.
+			sword_attack = false
+			sword_swipe_timer.stop()
+			
+			# If you are below the lower bound, then no horizontal movement.
+			# Else, the death and dead animation is played
+			if position.y > lower_bound_killzone.position.y:
 				velocity.x = 0
 			else:
 				if velocity.x != 0:
@@ -127,5 +153,10 @@ func handle_sprint_attack():
 
 func _on_sprint_attack_timer_timeout() -> void:
 	sprint_attack_active = false
-	unblock_inputs()
 	sprint_attack_timer.stop()
+	unblock_inputs()
+
+func _on_sword_swipe_timer_timeout() -> void:
+	sword_attack = false
+	sword_swipe_timer.stop()
+	print("Sword attack timeout")

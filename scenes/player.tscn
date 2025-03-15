@@ -1,7 +1,8 @@
-[gd_scene load_steps=40 format=3 uid="uid://dwtqyat8tg7sj"]
+[gd_scene load_steps=50 format=3 uid="uid://dwtqyat8tg7sj"]
 
 [ext_resource type="Texture2D" uid="uid://b7cpgmaen8g47" path="res://sprites/knight.png" id="1_ogwfa"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_somx4"]
+[ext_resource type="Texture2D" uid="uid://duwloxh7dx1ow" path="res://sprites/knight_zero_temp.png" id="3_w3ovd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_aem0x"]
 atlas = ExtResource("1_ogwfa")
@@ -142,6 +143,42 @@ region = Rect2(192, 160, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_5dwof"]
 atlas = ExtResource("1_ogwfa")
 region = Rect2(224, 160, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_71dts"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(0, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1reu6"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(32, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_imual"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(64, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ho3w"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(96, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cnbl8"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(128, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ndw0"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(160, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c30ve"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(192, 33, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_52gi5"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(0, 66, 32, 33)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vgx4l"]
+atlas = ExtResource("3_w3ovd")
+region = Rect2(32, 66, 32, 33)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_i750m"]
 animations = [{
@@ -285,6 +322,41 @@ animations = [{
 "loop": true,
 "name": &"sprint_attack",
 "speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_71dts")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1reu6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_imual")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ho3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ho3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cnbl8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ndw0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c30ve")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_52gi5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vgx4l")
+}],
+"loop": false,
+"name": &"sword_swipe",
+"speed": 16.0
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fmt3w"]
@@ -298,7 +370,7 @@ script = ExtResource("1_somx4")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -12)
 sprite_frames = SubResource("SpriteFrames_i750m")
-animation = &"sprint_attack"
+animation = &"sword_swipe"
 autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -308,4 +380,8 @@ shape = SubResource("CircleShape2D_fmt3w")
 [node name="SprintAttackTimer" type="Timer" parent="."]
 wait_time = 0.25
 
+[node name="SwordSwipeTimer" type="Timer" parent="."]
+wait_time = 0.55
+
 [connection signal="timeout" from="SprintAttackTimer" to="." method="_on_sprint_attack_timer_timeout"]
+[connection signal="timeout" from="SwordSwipeTimer" to="." method="_on_sword_swipe_timer_timeout"]

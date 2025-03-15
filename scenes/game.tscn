@@ -369,12 +369,12 @@ tile_set = SubResource("TileSet_5xauj")
 [node name="Player" parent="." instance=ExtResource("1_ufv6l")]
 unique_name_in_owner = true
 z_index = 5
-position = Vector2(701, -37)
+position = Vector2(3, -29)
 
 [node name="Camera" type="Camera2D" parent="Player"]
 position = Vector2(0, 1)
 zoom = Vector2(4, 4)
-limit_bottom = 120
+limit_bottom = 140
 limit_smoothed = true
 position_smoothing_enabled = true
 
